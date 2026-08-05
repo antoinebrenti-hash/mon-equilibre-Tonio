@@ -159,6 +159,7 @@
   a{color:var(--accent)}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<script src="html5-qrcode.min.js" defer></script>
 </head>
 <body>
 
@@ -551,7 +552,7 @@ function openSheet(title,html){
   $("sheet").innerHTML=`<div class="grabber"></div><div class="sheet-head"><h2>${title}</h2><button class="x" onclick="closeSheet()">✕</button></div>${html}`;
   $("sheetBg").classList.add("open");
 }
-function closeSheet(){$("sheetBg").classList.remove("open");}
+function closeSheet(){stopScanner();$("sheetBg").classList.remove("open");}
 $("sheetBg").addEventListener("click",e=>{if(e.target===$("sheetBg"))closeSheet();});
 
 /* -------- Ajout d'aliment -------- */
@@ -620,7 +621,92 @@ const FOODS=[
  {n:"Raisin",k:69,p:0.7,c:18,f:0.2,fi:0.9},{n:"Miel",k:304,p:0.3,c:82,f:0,fi:0.2},
  {n:"Sucre",k:400,p:0,c:100,f:0,fi:0},{n:"Chocolat noir",k:546,p:5,c:61,f:31,fi:7},
  {n:"Ketchup",k:112,p:1.3,c:26,f:0.2,fi:0.4},{n:"Moutarde",k:66,p:4,c:5,f:3.4,fi:3},
- {n:"Sauce soja",k:53,p:8,c:5,f:0.1,fi:0.8},{n:"Farine de blé",k:364,p:10,c:76,f:1,fi:2.7}
+ {n:"Sauce soja",k:53,p:8,c:5,f:0.1,fi:0.8},{n:"Farine de blé",k:364,p:10,c:76,f:1,fi:2.7},
+ /* viandes & charcuterie */
+ {n:"Entrecôte grillée",k:250,p:27,c:0,f:16,fi:0},{n:"Steak (bœuf) grillé",k:210,p:29,c:0,f:10,fi:0},
+ {n:"Escalope de veau",k:172,p:31,c:0,f:5,fi:0},{n:"Côte d'agneau",k:294,p:25,c:0,f:21,fi:0},
+ {n:"Magret de canard",k:200,p:20,c:0,f:13,fi:0},{n:"Rôti de porc",k:210,p:29,c:0,f:10,fi:0},
+ {n:"Lardons",k:320,p:15,c:1,f:28,fi:0},{n:"Bacon",k:260,p:20,c:1,f:20,fi:0},
+ {n:"Saucisse",k:290,p:16,c:1,f:25,fi:0},{n:"Merguez",k:280,p:16,c:2,f:23,fi:0},
+ {n:"Chorizo",k:455,p:24,c:2,f:38,fi:0},{n:"Saucisson sec",k:410,p:24,c:2,f:34,fi:0},
+ {n:"Pâté de campagne",k:280,p:14,c:2,f:24,fi:0},{n:"Nuggets de poulet",k:250,p:14,c:15,f:15,fi:1},
+ {n:"Cordon bleu",k:240,p:14,c:14,f:14,fi:1},
+ /* poissons & fruits de mer */
+ {n:"Sardines",k:208,p:24,c:0,f:12,fi:0},{n:"Maquereau",k:205,p:19,c:0,f:14,fi:0},
+ {n:"Truite",k:140,p:20,c:0,f:6,fi:0},{n:"Colin / lieu",k:90,p:18,c:0,f:1,fi:0},
+ {n:"Merlu",k:85,p:18,c:0,f:1,fi:0},{n:"Moules",k:172,p:24,c:7,f:4,fi:0},
+ {n:"Surimi",k:100,p:8,c:14,f:1,fi:0},{n:"Saumon fumé",k:180,p:22,c:0,f:10,fi:0},
+ /* œufs */
+ {n:"Œufs brouillés",k:155,p:11,c:1,f:12,fi:0},{n:"Omelette nature",k:154,p:11,c:1,f:12,fi:0},
+ /* produits laitiers & fromages */
+ {n:"Lait entier",k:64,p:3.2,c:4.8,f:3.6,fi:0},{n:"Lait écrémé",k:34,p:3.4,c:5,f:0.1,fi:0},
+ {n:"Yaourt grec",k:97,p:9,c:4,f:5,fi:0},{n:"Yaourt aux fruits",k:95,p:3.3,c:15,f:2.5,fi:0},
+ {n:"Petit-suisse",k:140,p:9,c:4,f:8,fi:0},{n:"Crème dessert",k:120,p:3,c:20,f:3,fi:0},
+ {n:"Comté",k:410,p:27,c:0,f:34,fi:0},{n:"Camembert",k:300,p:20,c:0,f:24,fi:0},
+ {n:"Chèvre",k:280,p:18,c:2,f:22,fi:0},{n:"Feta",k:264,p:14,c:4,f:21,fi:0},
+ {n:"Roquefort",k:370,p:19,c:2,f:31,fi:0},{n:"Cheddar",k:400,p:25,c:1,f:33,fi:0},
+ {n:"Fromage à tartiner",k:250,p:6,c:4,f:24,fi:0},{n:"Ricotta",k:150,p:11,c:3,f:11,fi:0},
+ /* féculents, pains & céréales */
+ {n:"Baguette",k:270,p:9,c:55,f:1.5,fi:3},{n:"Pain de mie",k:280,p:8,c:50,f:5,fi:3},
+ {n:"Biscottes",k:390,p:11,c:73,f:6,fi:4},{n:"Muesli",k:360,p:10,c:60,f:7,fi:8},
+ {n:"Corn flakes",k:380,p:7,c:84,f:1,fi:3},{n:"Riz basmati (cuit)",k:130,p:2.7,c:28,f:0.3,fi:0.5},
+ {n:"Boulgour (cuit)",k:83,p:3,c:19,f:0.2,fi:4.5},{n:"Polenta (cuite)",k:85,p:2,c:18,f:0.3,fi:1},
+ {n:"Gnocchi",k:160,p:4,c:32,f:1.5,fi:2},{n:"Purée de pommes de terre",k:90,p:2,c:15,f:2.5,fi:1.5},
+ {n:"Frites",k:290,p:3.5,c:38,f:14,fi:3.5},{n:"Chips",k:540,p:6,c:50,f:34,fi:4},
+ {n:"Galette de riz",k:385,p:8,c:81,f:3,fi:2},
+ /* légumineuses */
+ {n:"Pois cassés (cuits)",k:118,p:8,c:21,f:0.4,fi:8},{n:"Flageolets",k:130,p:8,c:22,f:0.5,fi:7},
+ {n:"Fèves",k:88,p:8,c:12,f:0.6,fi:5},{n:"Edamame",k:122,p:11,c:10,f:5,fi:5},
+ {n:"Houmous",k:220,p:7,c:15,f:16,fi:6},
+ /* légumes */
+ {n:"Aubergine",k:25,p:1,c:6,f:0.2,fi:3},{n:"Chou-fleur",k:25,p:1.9,c:5,f:0.3,fi:2},
+ {n:"Chou",k:25,p:1.3,c:6,f:0.1,fi:2.5},{n:"Poireau",k:30,p:1.5,c:7,f:0.3,fi:1.8},
+ {n:"Céleri",k:16,p:0.7,c:3,f:0.2,fi:1.6},{n:"Betterave",k:43,p:1.6,c:10,f:0.2,fi:2.8},
+ {n:"Petits pois",k:81,p:5,c:14,f:0.4,fi:5},{n:"Potiron / courge",k:26,p:1,c:6,f:0.1,fi:1},
+ {n:"Asperge",k:20,p:2.2,c:4,f:0.1,fi:2},{n:"Endive",k:17,p:0.9,c:3,f:0.1,fi:1},
+ {n:"Radis",k:16,p:0.7,c:3.4,f:0.1,fi:1.6},{n:"Olives",k:145,p:1,c:6,f:15,fi:3},
+ /* fruits */
+ {n:"Poire",k:57,p:0.4,c:15,f:0.1,fi:3},{n:"Pêche",k:39,p:0.9,c:10,f:0.2,fi:1.5},
+ {n:"Abricot",k:48,p:1.4,c:11,f:0.4,fi:2},{n:"Ananas",k:50,p:0.5,c:13,f:0.1,fi:1.4},
+ {n:"Mangue",k:60,p:0.8,c:15,f:0.4,fi:1.6},{n:"Kiwi",k:61,p:1.1,c:15,f:0.5,fi:3},
+ {n:"Melon",k:34,p:0.8,c:8,f:0.2,fi:0.9},{n:"Pastèque",k:30,p:0.6,c:8,f:0.2,fi:0.4},
+ {n:"Cerises",k:63,p:1,c:16,f:0.2,fi:2},{n:"Myrtilles",k:57,p:0.7,c:14,f:0.3,fi:2.4},
+ {n:"Framboises",k:52,p:1.2,c:12,f:0.7,fi:6.5},{n:"Clémentine",k:47,p:0.9,c:12,f:0.2,fi:1.7},
+ {n:"Citron",k:29,p:1.1,c:9,f:0.3,fi:2.8},{n:"Pamplemousse",k:42,p:0.8,c:11,f:0.1,fi:1.6},
+ {n:"Datte",k:282,p:2.5,c:75,f:0.4,fi:8},{n:"Raisins secs",k:299,p:3,c:79,f:0.5,fi:4},
+ {n:"Pruneaux",k:240,p:2.2,c:64,f:0.4,fi:7},{n:"Compote de pommes",k:45,p:0.2,c:11,f:0.1,fi:1},
+ /* noix & graines */
+ {n:"Noisettes",k:628,p:15,c:17,f:61,fi:10},{n:"Noix de cajou",k:553,p:18,c:30,f:44,fi:3},
+ {n:"Pistaches",k:562,p:20,c:28,f:45,fi:10},{n:"Graines de chia",k:486,p:17,c:42,f:31,fi:34},
+ {n:"Graines de courge",k:559,p:30,c:11,f:49,fi:6},{n:"Graines de tournesol",k:584,p:21,c:20,f:51,fi:9},
+ {n:"Cacahuètes",k:567,p:26,c:16,f:49,fi:8},
+ /* matières grasses & sauces */
+ {n:"Mayonnaise",k:680,p:1,c:1,f:75,fi:0},{n:"Vinaigrette",k:450,p:0,c:3,f:48,fi:0},
+ {n:"Margarine",k:720,p:0,c:0.5,f:80,fi:0},{n:"Huile de tournesol",k:884,p:0,c:0,f:100,fi:0},
+ {n:"Sauce tomate",k:35,p:1.5,c:6,f:0.8,fi:1.4},{n:"Pesto",k:450,p:5,c:6,f:45,fi:2},
+ {n:"Crème de soja",k:180,p:3,c:2,f:17,fi:0},
+ /* plats */
+ {n:"Pizza",k:250,p:11,c:30,f:9,fi:2},{n:"Quiche lorraine",k:280,p:9,c:20,f:18,fi:1},
+ {n:"Lasagnes",k:135,p:7,c:13,f:6,fi:1.5},{n:"Hamburger",k:250,p:12,c:25,f:11,fi:1.5},
+ {n:"Sushi",k:140,p:4,c:30,f:0.5,fi:0.6},{n:"Riz cantonais",k:160,p:6,c:22,f:5,fi:1},
+ {n:"Soupe de légumes",k:40,p:1.5,c:7,f:0.8,fi:1.5},{n:"Sandwich jambon-beurre",k:250,p:10,c:30,f:10,fi:2},
+ /* sucré & snacks */
+ {n:"Croissant",k:406,p:8,c:46,f:21,fi:2},{n:"Pain au chocolat",k:414,p:8,c:47,f:22,fi:2.5},
+ {n:"Biscuits",k:480,p:6,c:65,f:22,fi:2},{n:"Barre chocolatée",k:490,p:5,c:62,f:24,fi:2},
+ {n:"Gâteau au chocolat",k:370,p:5,c:50,f:17,fi:2},{n:"Crêpe",k:190,p:6,c:30,f:5,fi:1},
+ {n:"Confiture",k:260,p:0.4,c:65,f:0,fi:0.8},{n:"Pâte à tartiner",k:540,p:6,c:58,f:31,fi:0},
+ {n:"Chocolat au lait",k:535,p:8,c:58,f:30,fi:3},{n:"Glace vanille",k:200,p:3.5,c:24,f:10,fi:0},
+ {n:"Bonbons",k:350,p:0,c:88,f:0,fi:0},
+ /* boissons */
+ {n:"Jus d'orange",k:45,p:0.7,c:10,f:0.1,fi:0.2},{n:"Soda",k:42,p:0,c:11,f:0,fi:0},
+ {n:"Bière",k:43,p:0.5,c:3.6,f:0,fi:0},{n:"Vin rouge",k:85,p:0.1,c:2.6,f:0,fi:0},
+ {n:"Café noir",k:2,p:0.1,c:0,f:0,fi:0},{n:"Thé",k:1,p:0,c:0,f:0,fi:0},
+ {n:"Lait d'amande",k:24,p:0.5,c:3,f:1.1,fi:0.4},{n:"Lait d'avoine",k:45,p:1,c:7,f:1.5,fi:0.8},
+ {n:"Boisson au soja",k:40,p:3.3,c:1.5,f:1.9,fi:0.5},{n:"Smoothie",k:55,p:0.8,c:13,f:0.2,fi:1.2},
+ /* végétal & divers */
+ {n:"Tempeh",k:190,p:20,c:8,f:11,fi:1.4},{n:"Steak végétal",k:170,p:17,c:6,f:8,fi:3},
+ {n:"Seitan",k:140,p:25,c:4,f:2,fi:0.6},{n:"Levure maltée",k:105,p:10,c:19,f:1,fi:2},
+ {n:"Sirop d'érable",k:260,p:0,c:67,f:0,fi:0}
 ];
 
 function dishTab(){
@@ -644,11 +730,12 @@ function dishTab(){
     <button class="btn ghost block" style="margin-top:8px" onclick="saveRecipeOnly()">Enregistrer la recette seulement</button>`;
 }
 function refreshDish(){const el=$("addDish");if(el)el.innerHTML=dishTab();}
+function norm(s){return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/œ/g,"oe").replace(/æ/g,"ae").replace(/æ/g,"ae");}
 function renderIngResults(q){
   const el=$("ingResults");if(!el)return;
-  q=(q||"").trim().toLowerCase();
-  if(!q){el.innerHTML="";return;}
-  const res=FOODS.map((f,idx)=>({f,idx})).filter(o=>o.f.n.toLowerCase().includes(q)).slice(0,10);
+  const qn=norm((q||"").trim());
+  if(!qn){el.innerHTML="";return;}
+  const res=FOODS.map((f,idx)=>({f,idx})).filter(o=>norm(o.f.n).includes(qn)).slice(0,14);
   el.innerHTML=res.length?res.map(o=>`<div class="list-item" style="cursor:pointer" onclick="addCatalog(${o.idx})"><div class="grow"><div class="name">${esc(o.f.n)}</div><div class="sub tnum">${o.f.k} kcal/100g</div></div><span class="muted">＋</span></div>`).join(""):`<div class="muted" style="font-size:13px;padding:4px 0">Aucun ingrédient trouvé. Utilise « ＋ manuel ».</div>`;
 }
 function addCatalog(idx){const f=FOODS[idx];if(!f)return;BUILD.items.push({name:f.n,grams:100,per100:{kcal:f.k,p:f.p,c:f.c,f:f.f,fi:f.fi}});const q=$("ingQ");if(q)q.value="";refreshDish();}
@@ -736,34 +823,37 @@ function pickResult(i){
     <div id="addManual">${manualForm({name:p.name,grams:g,kcal:p.per100.kcal*f,protein:p.per100.protein*f,carb:p.per100.carb*f,fat:p.per100.fat*f,fiber:p.per100.fiber*f})}</div>`);
 }
 
-/* -------- Scan -------- */
+/* -------- Scan (vrai lecteur de code-barres, html5-qrcode) -------- */
+let scannerObj=null;
+function h5(){return window.Html5Qrcode||(window.__Html5QrcodeLibrary__&&window.__Html5QrcodeLibrary__.Html5Qrcode);}
+function h5fmt(){return window.Html5QrcodeSupportedFormats||(window.__Html5QrcodeLibrary__&&window.__Html5QrcodeLibrary__.Html5QrcodeSupportedFormats);}
 function openScan(){
-  const supported=("BarcodeDetector" in window);
-  openSheet("Scanner un produit",`
-    ${supported?`<video id="cam" playsinline style="width:100%;border-radius:12px;background:#000;aspect-ratio:3/4;object-fit:cover"></video>
-      <div id="scanMsg" class="muted" style="font-size:13px;margin-top:8px">Vise le code-barres…</div>`:
-      `<div class="note warn"><span class="ic">📷</span> Le scan caméra n'est pas disponible sur ce navigateur (Safari iPhone notamment). Saisis le code-barres à la main :</div>`}
-    <div class="field" style="margin-top:12px"><label>Code-barres</label><div class="row" style="gap:8px"><input id="bc" inputmode="numeric" placeholder="Ex. 3017620422003"><button class="btn primary" onclick="lookupBarcode($('bc').value)">OK</button></div></div>
-    <button class="btn ghost block" onclick="openAddFood('${ADD_TYPE}')">Plutôt une saisie manuelle</button>`);
-  if(supported)startCam();
+  openSheet("Scanner un code-barres",`
+    <div id="reader" style="width:100%;border-radius:12px;overflow:hidden;background:#000;min-height:230px"></div>
+    <div id="scanMsg" class="muted" style="font-size:13px;margin-top:8px">Autorise la caméra, puis vise le code-barres du produit.</div>
+    <div class="field" style="margin-top:12px"><label>Ou saisis le code-barres à la main</label><div class="row" style="gap:8px"><input id="bc" inputmode="numeric" placeholder="Ex. 3017620422003"><button class="btn primary" onclick="lookupBarcode($('bc').value)">OK</button></div></div>
+    <button class="btn ghost block" onclick="stopScanner();openAddFood(ADD_TYPE)">Plutôt une saisie manuelle</button>`);
+  startScanner();
 }
-let camStream=null;
-async function startCam(){
+function startScanner(){
+  const H=h5(),F=h5fmt();
+  if(!H){if($("scanMsg"))$("scanMsg").textContent="Lecteur non chargé (vérifie ta connexion). Saisis le code à la main.";return;}
+  const fmts=F?[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39]:null;
   try{
-    const det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e","code_128"]});
-    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
-    const v=$("cam");v.srcObject=camStream;await v.play();
-    const loop=async()=>{
-      if(!$("cam"))return stopCam();
-      try{const codes=await det.detect(v);if(codes.length){stopCam();lookupBarcode(codes[0].rawValue);return;}}catch(e){}
-      requestAnimationFrame(loop);
-    };loop();
-  }catch(e){if($("scanMsg"))$("scanMsg").textContent="Caméra indisponible. Saisis le code à la main.";}
+    scannerObj=new H("reader",fmts?{formatsToSupport:fmts}:undefined);
+    scannerObj.start({facingMode:"environment"},{fps:10,qrbox:{width:260,height:150}},
+      (txt)=>{stopScanner();lookupBarcode(txt);},()=>{})
+      .catch(()=>{if($("scanMsg"))$("scanMsg").textContent="Caméra refusée ou indisponible. Autorise-la (icône « aA » dans Safari) ou saisis le code à la main.";});
+  }catch(e){if($("scanMsg"))$("scanMsg").textContent="Scanner indisponible. Saisis le code à la main.";}
 }
-function stopCam(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}}
+function stopScanner(){
+  if(!scannerObj)return;
+  const s=scannerObj;scannerObj=null;
+  try{s.stop().then(()=>{try{s.clear();}catch(_){}}).catch(()=>{});}catch(e){}
+}
 async function lookupBarcode(code){
   code=(code||"").trim();if(!code)return;
-  stopCam();
+  stopScanner();
   openSheet("Recherche…",`<div class="empty"><span class="ic">🔎</span>Recherche du produit ${esc(code)}…</div>`);
   try{
     const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`);
