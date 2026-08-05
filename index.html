@@ -552,7 +552,7 @@ function openSheet(title,html){
   $("sheet").innerHTML=`<div class="grabber"></div><div class="sheet-head"><h2>${title}</h2><button class="x" onclick="closeSheet()">✕</button></div>${html}`;
   $("sheetBg").classList.add("open");
 }
-function closeSheet(){stopScanner();$("sheetBg").classList.remove("open");}
+function closeSheet(){stopScanner();stopTimer();$("sheetBg").classList.remove("open");}
 $("sheetBg").addEventListener("click",e=>{if(e.target===$("sheetBg"))closeSheet();});
 
 /* -------- Ajout d'aliment -------- */
@@ -572,6 +572,7 @@ function openAddFood(type){ADD_TYPE=type||"snack";
       <div id="results" style="margin-top:6px"></div>
     </div>
     <div id="addManual" class="hidden">${manualForm()}</div>`);
+  renderIngResults("");
 }
 function addTab(t){
   const ids={dish:"tabDish",search:"tabSearch",manual:"tabManual"};
@@ -838,14 +839,17 @@ function dishTab(){
     <button class="btn primary block" style="margin-top:10px" onclick="saveRecipeAndAdd()">Ajouter 1 portion à ${MTYPES.find(m=>m[0]===ADD_TYPE)[1]}</button>
     <button class="btn ghost block" style="margin-top:8px" onclick="saveRecipeOnly()">Enregistrer la recette seulement</button>`;
 }
-function refreshDish(){const el=$("addDish");if(el)el.innerHTML=dishTab();}
+function refreshDish(){const el=$("addDish");if(!el)return;el.innerHTML=dishTab();renderIngResults($("ingQ")?$("ingQ").value:"");}
 function norm(s){return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/œ/g,"oe").replace(/æ/g,"ae").replace(/æ/g,"ae");}
+const POPULAR=["Pomme","Banane","Orange","Fraises","Œuf","Blanc de poulet (cuit)","Riz complet (cuit)","Pâtes (cuites)","Pain complet","Yaourt nature","Fromage blanc 0%","Flocons d'avoine","Tomate","Salade verte","Carotte","Pommes de terre (cuites)","Saumon (cuit)","Thon (naturel)","Amandes","Lait demi-écrémé"];
 function renderIngResults(q){
   const el=$("ingResults");if(!el)return;
   const qn=norm((q||"").trim());
-  if(!qn){el.innerHTML="";return;}
-  const res=FOODS.map((f,idx)=>({f,idx})).filter(o=>norm(o.f.n).includes(qn)).slice(0,14);
-  el.innerHTML=res.length?res.map(o=>`<div class="list-item" style="cursor:pointer" onclick="addCatalog(${o.idx})"><div class="grow"><div class="name">${esc(o.f.n)}</div><div class="sub tnum">${o.f.k} kcal/100g</div></div><span class="muted">＋</span></div>`).join(""):`<div class="muted" style="font-size:13px;padding:4px 0">Aucun ingrédient trouvé. Utilise « ＋ manuel ».</div>`;
+  let list;
+  if(qn) list=FOODS.map((f,idx)=>({f,idx})).filter(o=>norm(o.f.n).includes(qn)).slice(0,40);
+  else list=FOODS.map((f,idx)=>({f,idx})).filter(o=>POPULAR.some(p=>norm(p)===norm(o.f.n)));
+  const rows=list.length?list.map(o=>`<div class="list-item" style="cursor:pointer" onclick="addCatalog(${o.idx})"><div class="grow"><div class="name">${esc(o.f.n)}</div><div class="sub tnum">${o.f.k} kcal/100g</div></div><span class="muted">＋</span></div>`).join(""):`<div class="muted" style="font-size:13px;padding:4px 0">Aucun aliment. Utilise « ＋ manuel ».</div>`;
+  el.innerHTML=(qn?"":`<div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:6px 2px 2px">Populaires · ou tape un nom (399 aliments)</div>`)+rows;
 }
 function addCatalog(idx){const f=FOODS[idx];if(!f)return;BUILD.items.push({name:f.n,grams:100,per100:{kcal:f.k,p:f.p,c:f.c,f:f.f,fi:f.fi}});const q=$("ingQ");if(q)q.value="";refreshDish();}
 function addManualIngredient(){
@@ -1045,9 +1049,9 @@ function openSetup(){
 function toggleGoal(k){const g=new Set(SETUP.goals);g.has(k)?g.delete(k):g.add(k);SETUP.goals=[...g];if(!SETUP.goals.length)SETUP.goals=["general"];openSetup();}
 function doGenerate(){S.plan=generatePlan(SETUP.goals,SETUP.lvl,SETUP.setKey,SETUP.days,SETUP.mins);save();closeSheet();go("workouts");toast("🏋️ Programme créé");}
 function openDay(i){
-  const d=S.plan.days[i];const bl={warmup:"Échauffement",main:"Principal",accessory:"Complémentaire",cooldown:"Retour au calme"};
-  openSheet(d.title,`${d.ex.map(pe=>{const e=exById(pe.id);if(!e)return"";return `<div class="card tight" style="cursor:pointer" onclick="openEx('${pe.id}','${pe.s}×${pe.r}${pe.rest?' · repos '+pe.rest+'s':''}')">
-    <div class="row"><span style="font-size:20px">${e.ic}</span><div class="grow"><b>${e.n}</b><div class="sub muted" style="font-size:12px">${bl[pe.block]||""} · ${pe.s}×${pe.r}</div></div><span class="muted">›</span></div></div>`;}).join("")}`);
+  const d=S.plan.days[i];
+  openSheet(d.title,`${d.ex.length?`<button class="btn primary block" style="margin-bottom:12px" onclick="startWorkout(${i})">▶ Démarrer la séance (avec chrono)</button>`:""}${d.ex.map(pe=>{const e=exById(pe.id);if(!e)return"";return `<div class="card tight" style="cursor:pointer" onclick="openEx('${pe.id}','${pe.s}×${pe.r}${pe.rest?' · repos '+pe.rest+'s':''}')">
+    <div class="row"><span style="font-size:20px">${e.ic}</span><div class="grow"><b>${e.n}</b><div class="sub muted" style="font-size:12px">${blockLabel(pe.block)} · ${pe.s}×${pe.r}</div></div><span class="muted">›</span></div></div>`;}).join("")}`);
 }
 function openEx(id,pres){
   const e=exById(id);if(!e)return;
@@ -1056,6 +1060,65 @@ function openEx(id,pres){
     ${e.err?`<div class="ex-block">Erreurs fréquentes</div>${e.err.map(x=>`<div style="font-size:14.5px;padding:3px 0">• ${x}</div>`).join("")}`:""}
     ${e.warn?`<div class="note warn" style="margin-top:12px"><span class="ic">⚠️</span>${e.warn}</div>`:""}`);
 }
+function blockLabel(b){return {warmup:"Échauffement",main:"Principal",accessory:"Complémentaire",cooldown:"Retour au calme",mobility:"Mobilité"}[b]||"";}
+
+/* ================= Lecteur de séance + chronomètre ================= */
+let PLAYER=null;
+let TMR={id:null,total:0,remaining:0,mode:"down",running:false};
+function parseDur(r){const s=(""+r).toLowerCase();const m=s.match(/(\d+)/);if(!m)return 0;const n=+m[1];if(s.includes("min"))return n*60;if(s.includes("s"))return n;return 0;}
+function fmtTime(t){t=Math.max(0,Math.round(t));const m=Math.floor(t/60),s=t%60;return m+":"+String(s).padStart(2,"0");}
+function startWorkout(dayIdx){PLAYER={dayIdx,i:0};renderPlayer();}
+function playerNav(d){if(!PLAYER)return;const n=S.plan.days[PLAYER.dayIdx].ex.length;PLAYER.i=Math.max(0,Math.min(n-1,PLAYER.i+d));renderPlayer();}
+function finishWorkout(){stopTimer();PLAYER=null;closeSheet();toast("💪 Séance terminée, bravo !");}
+function renderPlayer(){
+  stopTimer();
+  const day=S.plan.days[PLAYER.dayIdx],list=day.ex,i=PLAYER.i,pe=list[i],e=exById(pe.id);
+  const timed=parseDur(pe.r);
+  TMR={id:null,total:timed,remaining:timed,mode:timed?"down":"up",running:false};
+  openSheet("Séance — "+day.title,`
+    <div class="between" style="margin-bottom:4px">
+      <button class="btn sm ghost" onclick="playerNav(-1)" ${i===0?"disabled":""}>◀</button>
+      <b>Exercice ${i+1} / ${list.length}</b>
+      <button class="btn sm ghost" onclick="playerNav(1)" ${i>=list.length-1?"disabled":""}>▶</button>
+    </div>
+    <div style="text-align:center;margin:4px 0 8px">
+      <div style="font-size:34px">${e?e.ic:"🏋️"}</div>
+      <h2 style="font-size:20px;text-align:center">${e?e.n:pe.id}</h2>
+      <div class="muted" style="font-size:13px">${blockLabel(pe.block)} · ${pe.s} × ${pe.r}${pe.rest?" · repos "+pe.rest+"s":""}</div>
+    </div>
+    <div class="ring-wrap">
+      <div class="ring"><svg width="150" height="150" viewBox="0 0 150 150">
+        <circle class="c-bg" cx="75" cy="75" r="61"></circle>
+        <circle class="c-fg" id="timerRingFg" cx="75" cy="75" r="61"></circle></svg>
+        <div class="center"><span class="n" id="timerDisp">${timed?fmtTime(timed):"0:00"}</span><span class="u" id="timerMode">${timed?"minuteur":"chrono"}</span></div>
+      </div>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <button class="btn primary" id="btnStart" onclick="toggleTimer()">▶ Départ</button>
+      <button class="btn" onclick="resetTimer()">↺ Zéro</button>
+      <button class="btn" onclick="startTimer(${pe.rest||60},'down')">😮‍💨 Repos ${pe.rest||60}s</button>
+    </div>
+    ${e&&e.ins&&e.ins.length?`<div class="ex-block">Consignes</div>${e.ins.map(x=>`<div style="font-size:13.5px;padding:2px 0">• ${x}</div>`).join("")}`:""}
+    ${e&&e.warn?`<div class="note warn" style="margin-top:10px"><span class="ic">⚠️</span>${e.warn}</div>`:""}
+    <button class="btn block" style="margin-top:14px" onclick="finishWorkout()">Terminer la séance ✓</button>`);
+  drawTimerRing(1);
+}
+function toggleTimer(){
+  const b=$("btnStart");
+  if(TMR.id){TMR.running=!TMR.running;if(b)b.textContent=TMR.running?"⏸ Pause":"▶ Reprendre";return;}
+  startTimer(TMR.mode==="down"?TMR.total:0,TMR.mode);
+}
+function startTimer(seconds,mode){
+  stopTimer();TMR.mode=mode;TMR.total=seconds||0;TMR.remaining=mode==="down"?(seconds||0):0;TMR.running=true;
+  const b=$("btnStart");if(b)b.textContent="⏸ Pause";const md=$("timerMode");if(md)md.textContent=mode==="down"?"minuteur":"chrono";
+  updateTimerUI();TMR.id=setInterval(tick,1000);
+}
+function tick(){if(!TMR.running)return;if(TMR.mode==="down"){TMR.remaining--;if(TMR.remaining<=0){TMR.remaining=0;updateTimerUI();stopTimer();timerDone();return;}}else{TMR.remaining++;}updateTimerUI();}
+function timerDone(){try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}const d=$("timerDisp");if(d)d.textContent="Terminé ✅";const b=$("btnStart");if(b)b.textContent="▶ Départ";}
+function resetTimer(){stopTimer();TMR.remaining=TMR.mode==="down"?TMR.total:0;updateTimerUI();const b=$("btnStart");if(b)b.textContent="▶ Départ";}
+function stopTimer(){if(TMR.id){clearInterval(TMR.id);TMR.id=null;}TMR.running=false;}
+function updateTimerUI(){const d=$("timerDisp");if(d)d.textContent=fmtTime(TMR.remaining);let frac;if(TMR.mode==="down")frac=TMR.total?TMR.remaining/TMR.total:0;else frac=1-((TMR.remaining%60)/60);drawTimerRing(frac);}
+function drawTimerRing(frac){const c=$("timerRingFg");if(!c)return;const R=61,C=2*Math.PI*R;c.style.strokeDasharray=C;c.style.strokeDashoffset=C*(1-Math.max(0,Math.min(1,frac)));}
 
 /* ================= Démo / export / reset ================= */
 function loadDemo(){
