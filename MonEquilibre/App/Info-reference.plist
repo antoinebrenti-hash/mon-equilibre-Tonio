@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  RÉFÉRENCE des clés Info.plist à ajouter au projet.
+
+  Depuis Xcode 13+, un projet SwiftUI "App" génère l'Info.plist via l'onglet
+  « Info » de la cible (build settings GENERATE_INFOPLIST_FILE = YES).
+  Ajoute chaque clé ci-dessous dans la cible > onglet Info, OU colle-les dans
+  ton Info.plist si tu utilises un fichier Info.plist classique.
+
+  Les textes d'autorisation sont aussi traduits dans :
+    fr.lproj/InfoPlist.strings  et  pl.lproj/InfoPlist.strings
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSHealthShareUsageDescription</key>
+    <string>Mon Équilibre lit ton poids, ta taille, tes pas, tes calories actives et ta distance pour affiner l'estimation de tes besoins et suivre ta progression. Tu peux refuser : l'application fonctionne quand même.</string>
+
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>Avec ton accord, Mon Équilibre peut enregistrer ton poids et ta consommation d'eau dans Apple Santé. C'est totalement facultatif.</string>
+
+    <key>NSCameraUsageDescription</key>
+    <string>La caméra sert à scanner les codes-barres des produits pour récupérer leurs informations nutritionnelles. Tu peux aussi saisir les aliments à la main.</string>
+
+    <!-- Langues prises en charge -->
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>fr</string>
+        <string>pl</string>
+    </array>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>fr</string>
+</dict>
+</plist>

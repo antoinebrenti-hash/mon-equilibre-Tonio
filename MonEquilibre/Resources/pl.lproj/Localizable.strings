@@ -1,0 +1,22 @@
+/* Mon Équilibre — Polski (Polonais) */
+
+"tab.home" = "Główna";
+"tab.meals" = "Posiłki";
+"tab.progress" = "Postępy";
+"tab.workouts" = "Ćwiczenia";
+"tab.profile" = "Profil";
+
+"home.caloriesConsumed" = "Spożyte kalorie";
+"home.remaining" = "Pozostało ~%d kcal";
+"home.overshoot" = "Jeden dzień nie decyduje o Twoich postępach. Patrz przede wszystkim na średnią tygodnia.";
+
+"meals.breakfast" = "Śniadanie";
+"meals.lunch" = "Obiad";
+"meals.dinner" = "Kolacja";
+"meals.snack" = "Przekąski";
+
+"common.save" = "Zapisz";
+"common.cancel" = "Anuluj";
+"common.close" = "Zamknij";
+
+"disclaimer.medical" = "Mon Équilibre podaje ogólne szacunki i nie zastępuje lekarza, dietetyka ani fizjoterapeuty.";

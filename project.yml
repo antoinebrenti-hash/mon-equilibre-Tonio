@@ -1,0 +1,53 @@
+# project.yml — génère MonEquilibre.xcodeproj avec XcodeGen (méthode fiable).
+#
+# Sur le Mac :
+#   brew install xcodegen
+#   cd MonEquilibre        (le dossier qui contient ce fichier)
+#   xcodegen generate
+#   open MonEquilibre.xcodeproj
+#
+# Puis dans Xcode : cible MonEquilibre > Signing & Capabilities > choisis ton
+# équipe (Team) et vérifie que « HealthKit » est présent.
+
+name: MonEquilibre
+options:
+  bundleIdPrefix: com.monequilibre
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: fr
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    GENERATE_INFOPLIST_FILE: YES
+    INFOPLIST_KEY_CFBundleDisplayName: "Mon Équilibre"
+    INFOPLIST_KEY_UILaunchScreen_Generation: YES
+    # Textes d'autorisation (repris aussi dans les fichiers InfoPlist.strings)
+    INFOPLIST_KEY_NSHealthShareUsageDescription: "Mon Équilibre lit ton poids, ta taille, tes pas, tes calories actives et ta distance pour affiner l'estimation de tes besoins et suivre ta progression. Tu peux refuser : l'application fonctionne quand même."
+    INFOPLIST_KEY_NSHealthUpdateUsageDescription: "Avec ton accord, Mon Équilibre peut enregistrer ton poids et ta consommation d'eau dans Apple Santé. C'est totalement facultatif."
+    INFOPLIST_KEY_NSCameraUsageDescription: "La caméra sert à scanner les codes-barres des produits pour récupérer leurs informations nutritionnelles. Tu peux aussi saisir les aliments à la main."
+
+targets:
+  MonEquilibre:
+    type: application
+    platform: iOS
+    sources:
+      - path: MonEquilibre
+    settings:
+      base:
+        CODE_SIGN_ENTITLEMENTS: MonEquilibre/App/MonEquilibre.entitlements
+        SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
+        TARGETED_DEVICE_FAMILY: "1"   # iPhone
+
+  MonEquilibreTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: MonEquilibreTests
+    dependencies:
+      - target: MonEquilibre
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES

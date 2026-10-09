@@ -1,0 +1,22 @@
+/* Mon Équilibre — Français (langue par défaut) */
+
+"tab.home" = "Accueil";
+"tab.meals" = "Repas";
+"tab.progress" = "Progrès";
+"tab.workouts" = "Exercices";
+"tab.profile" = "Profil";
+
+"home.caloriesConsumed" = "Calories consommées";
+"home.remaining" = "Il te reste ~%d kcal";
+"home.overshoot" = "Une journée ne détermine pas ta progression. Observe surtout la moyenne de la semaine.";
+
+"meals.breakfast" = "Petit-déjeuner";
+"meals.lunch" = "Déjeuner";
+"meals.dinner" = "Dîner";
+"meals.snack" = "Collations";
+
+"common.save" = "Enregistrer";
+"common.cancel" = "Annuler";
+"common.close" = "Fermer";
+
+"disclaimer.medical" = "Mon Équilibre fournit des estimations générales et ne remplace pas un médecin, un diététicien ou un kinésithérapeute.";
